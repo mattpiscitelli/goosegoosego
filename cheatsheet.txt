@@ -1,0 +1,71 @@
+Palo Alto Cheatsheet
+
+Inital configuration:
+admin/admin
+
+configure
+
+# Turn off scripting mode
+set cli scripting-mode off
+
+# Temporarily disable remote management access
+set deviceconfig system permitted-ip 127.0.0.1
+commit
+
+# Take down primary ethernet interface for configuration
+set network interface ethernet ethernet1/x link-state down
+commit
+
+# Change admin password
+set mgt-confg users admin password
+commit
+
+# [Optional] Change management IP address
+#set deviceconfig system ip-address x.x.x.x netmask x.x.x.x default-gateway x.x.x.x dns-setting servers primary x.x.x.x
+commit
+
+# Secure management interface - allow ssh, https, ping
+set deviceconfig system service disable-https no
+commit
+
+# Make sure there are no extra admins
+show admins all
+# Delete them if necessary
+delete mgt-config users <username>
+commit
+
+# Turn interface back on from above step
+set network interface ethernet ethernet1/1 link-state up
+commit
+
+# [Optional] Turn on management interface and only allow from certain remote computer
+set deviceconfig system permitted-ip x.x.x.x
+Navigate to GUI in browser if needed
+
+# [Optional] Back up firewall config
+scp export configuration to <user>@<ip>:<path>
+
+# Activate liscense or its a dumb box (full license key)
+request license install
+# Activate auth code
+Device -> Licenses -> Activate feature using authorization code
+I1843851
+
+# Schedule updates for AV
+set deviceconfig system update-schedule anti-virus recurring weekly day-of-week wednesday action download-and-install at 01:00
+
+===================================================================================================
+# Step 4:   Determine and configure network: Vwire/Layer2/Layer3
+# Step 5:   Configure security policies and assign security profiles to the policies
+===================================================================================================
+
+ethernet1/1     egress  (outbound)
+ethernet1/2     ingress (inbound)
+
+VWire
+ -  PA 3050 preconfigured for VWire
+(1) Configure "outside" Vwire zone for ethernet1/1
+(2) Configure "inside"  Vwire zone for ethernet1/2
+(3) Configure inbound and outbound security policies
+
+
